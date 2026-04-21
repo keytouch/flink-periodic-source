@@ -7,7 +7,7 @@ import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSource
 import net.krmo.flink.source.periodic.PeriodicSplit;
 
 public class PeriodicReader<OUT>
-        extends SingleThreadMultiplexSourceReaderBase<OUT, OUT, PeriodicSplit<OUT>, PeriodicSplit<OUT>> {
+        extends SingleThreadMultiplexSourceReaderBase<OUT, OUT, PeriodicSplit, PeriodicSplit> {
 
     public PeriodicReader(SourceReaderContext context) {
         super(
@@ -18,17 +18,17 @@ public class PeriodicReader<OUT>
     }
 
     @Override
-    protected void onSplitFinished(Map<String, PeriodicSplit<OUT>> finishedSplitIds) {
+    protected void onSplitFinished(Map<String, PeriodicSplit> finishedSplitIds) {
         // never
     }
 
     @Override
-    protected PeriodicSplit<OUT> initializedState(PeriodicSplit<OUT> split) {
+    protected PeriodicSplit initializedState(PeriodicSplit split) {
         return split;
     }
 
     @Override
-    protected PeriodicSplit<OUT> toSplitType(String splitId, PeriodicSplit<OUT> splitState) {
+    protected PeriodicSplit toSplitType(String splitId, PeriodicSplit splitState) {
         return splitState;
     }
 

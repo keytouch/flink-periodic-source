@@ -1,6 +1,7 @@
 package net.krmo.flink.source.periodic;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,11 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import net.krmo.flink.source.periodic.event.Event;
 
-public class PeriodicEnumerator<OUT> implements SplitEnumerator<PeriodicSplit<OUT>, PeriodicEnumeratorState> {
+public class PeriodicEnumerator<OUT extends Serializable>
+        implements SplitEnumerator<PeriodicSplit, PeriodicEnumeratorState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PeriodicEnumerator.class);
 
-    private final SplitEnumeratorContext<PeriodicSplit<OUT>> context;
+    private final SplitEnumeratorContext<PeriodicSplit> context;
     private final PeriodicEnumeratorState state;
     private final SourceSupplier<OUT> supplier;
     private final long initialDelayMillis;
@@ -28,7 +30,7 @@ public class PeriodicEnumerator<OUT> implements SplitEnumerator<PeriodicSplit<OU
     private boolean initialized;
 
     public PeriodicEnumerator(
-            SplitEnumeratorContext<PeriodicSplit<OUT>> context,
+            SplitEnumeratorContext<PeriodicSplit> context,
             PeriodicEnumeratorState state,
             SourceSupplier<OUT> supplier,
             long initialDelayMillis,
@@ -55,7 +57,7 @@ public class PeriodicEnumerator<OUT> implements SplitEnumerator<PeriodicSplit<OU
     }
 
     @Override
-    public void addSplitsBack(List<PeriodicSplit<OUT>> splits, int subtaskId) {
+    public void addSplitsBack(List<PeriodicSplit> splits, int subtaskId) {
         LOG.warn(
                 "failed splits: {} sent back from subtask: {}, splits will be spreaded out on next schedule",
                 splits, subtaskId);
@@ -95,9 +97,9 @@ public class PeriodicEnumerator<OUT> implements SplitEnumerator<PeriodicSplit<OU
             return;
         }
 
-        Map<Integer, List<PeriodicSplit<OUT>>> assignment = new HashMap<>();
+        Map<Integer, List<PeriodicSplit>> assignment = new HashMap<>();
         subtaskIds.forEach(subtaskId -> {
-            assignment.put(subtaskId, Collections.singletonList(new PeriodicSplit<>("subtasksplit_" + subtaskId)));
+            assignment.put(subtaskId, Collections.singletonList(new PeriodicSplit("subtasksplit_" + subtaskId)));
         });
 
         int outputIndex = 0;

@@ -1,5 +1,7 @@
 package net.krmo.flink.source.periodic;
 
+import java.io.Serializable;
+
 import org.apache.flink.api.connector.source.Boundedness;
 import org.apache.flink.api.connector.source.Source;
 import org.apache.flink.api.connector.source.SourceReader;
@@ -11,7 +13,7 @@ import org.apache.flink.core.io.SimpleVersionedSerializer;
 import net.krmo.flink.source.SimpleSerializer;
 import net.krmo.flink.source.periodic.reader.PeriodicReader;
 
-public class PeriodicSource<OUT> implements Source<OUT, PeriodicSplit<OUT>, PeriodicEnumeratorState> {
+public class PeriodicSource<OUT extends Serializable> implements Source<OUT, PeriodicSplit, PeriodicEnumeratorState> {
 
     private final SourceSupplier<OUT> supplier;
     private final long initialDelayMillis;
@@ -32,13 +34,13 @@ public class PeriodicSource<OUT> implements Source<OUT, PeriodicSplit<OUT>, Peri
     }
 
     @Override
-    public SourceReader<OUT, PeriodicSplit<OUT>> createReader(SourceReaderContext readerContext) throws Exception {
+    public SourceReader<OUT, PeriodicSplit> createReader(SourceReaderContext readerContext) throws Exception {
         return new PeriodicReader<>(readerContext);
     }
 
     @Override
-    public SplitEnumerator<PeriodicSplit<OUT>, PeriodicEnumeratorState> createEnumerator(
-            SplitEnumeratorContext<PeriodicSplit<OUT>> enumContext)
+    public SplitEnumerator<PeriodicSplit, PeriodicEnumeratorState> createEnumerator(
+            SplitEnumeratorContext<PeriodicSplit> enumContext)
             throws Exception {
         return new PeriodicEnumerator<>(
                 enumContext,
@@ -49,8 +51,8 @@ public class PeriodicSource<OUT> implements Source<OUT, PeriodicSplit<OUT>, Peri
     }
 
     @Override
-    public SplitEnumerator<PeriodicSplit<OUT>, PeriodicEnumeratorState> restoreEnumerator(
-            SplitEnumeratorContext<PeriodicSplit<OUT>> enumContext,
+    public SplitEnumerator<PeriodicSplit, PeriodicEnumeratorState> restoreEnumerator(
+            SplitEnumeratorContext<PeriodicSplit> enumContext,
             PeriodicEnumeratorState checkpoint)
             throws Exception {
         return new PeriodicEnumerator<>(
@@ -62,7 +64,7 @@ public class PeriodicSource<OUT> implements Source<OUT, PeriodicSplit<OUT>, Peri
     }
 
     @Override
-    public SimpleVersionedSerializer<PeriodicSplit<OUT>> getSplitSerializer() {
+    public SimpleVersionedSerializer<PeriodicSplit> getSplitSerializer() {
         return new SimpleSerializer<>();
     }
 

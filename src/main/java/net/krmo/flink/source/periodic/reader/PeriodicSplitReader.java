@@ -1,6 +1,7 @@
 package net.krmo.flink.source.periodic.reader;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,12 +20,12 @@ import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
 import net.krmo.flink.source.periodic.PeriodicSplit;
 import net.krmo.flink.source.periodic.event.Event;
 
-public class PeriodicSplitReader<OUT> implements SplitReader<OUT, PeriodicSplit<OUT>> {
+public class PeriodicSplitReader<OUT> implements SplitReader<OUT, PeriodicSplit> {
 
     private final DelayQueue<Event<OUT>> eventQueue = new DelayQueue<>();
 
-    private PeriodicSplit<OUT> currentSplit;
-    private PeriodicSplit<OUT> pendingSplit;
+    private PeriodicSplit currentSplit;
+    private PeriodicSplit pendingSplit;
 
     @Override
     public void close() throws Exception {
@@ -62,7 +63,7 @@ public class PeriodicSplitReader<OUT> implements SplitReader<OUT, PeriodicSplit<
     }
 
     @Override
-    public void handleSplitsChanges(SplitsChange<PeriodicSplit<OUT>> splitsChanges) {
+    public void handleSplitsChanges(SplitsChange<PeriodicSplit> splitsChanges) {
         // only one split per subtask
         pendingSplit = splitsChanges.splits().get(0);
         processPendingSplit();
@@ -78,18 +79,19 @@ public class PeriodicSplitReader<OUT> implements SplitReader<OUT, PeriodicSplit<
      * existing events are not touched.
      * 2. remove events no longer existing.
      */
+    @SuppressWarnings("unchecked")
     private void processPendingSplit() {
         if (pendingSplit != null) {
             currentSplit = pendingSplit;
             pendingSplit = null;
 
-            List<Event<OUT>> events = currentSplit.getEvents();
-            for (Event<OUT> event : events) {
+            List<Event<Serializable>> events = currentSplit.getEvents();
+            for (Event<Serializable> event : events) {
                 if (eventQueue.contains(event)) {
                     continue;
                 }
                 event.setNextRunTime();
-                eventQueue.add(event);
+                eventQueue.add((Event<OUT>) event);
             }
             eventQueue.removeIf(e -> !events.contains(e));
         }

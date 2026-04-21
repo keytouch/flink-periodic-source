@@ -17,11 +17,11 @@ import net.krmo.flink.source.periodic.event.Event;
  * removed. Existing events will not be touched, so as to keep its scheduling
  * states (due events may be missed if we try to requeue all events)
  */
-public class PeriodicSplit<OUT> implements SourceSplit, Serializable {
+public class PeriodicSplit implements SourceSplit, Serializable {
 
     private final String id;
 
-    private final List<Event<OUT>> events = new ArrayList<>();
+    private final List<Event<Serializable>> events = new ArrayList<>();
 
     public PeriodicSplit(String id) {
         this.id = id;
@@ -32,11 +32,11 @@ public class PeriodicSplit<OUT> implements SourceSplit, Serializable {
         return id;
     }
 
-    public List<Event<OUT>> getEvents() {
+    public List<Event<Serializable>> getEvents() {
         return events;
     }
 
-    public void addEvent(Event<OUT> event) {
+    public void addEvent(Event<Serializable> event) {
         events.add(event);
     }
 

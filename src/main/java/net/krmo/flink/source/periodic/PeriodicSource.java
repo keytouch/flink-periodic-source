@@ -10,7 +10,6 @@ import org.apache.flink.api.connector.source.SplitEnumerator;
 import org.apache.flink.api.connector.source.SplitEnumeratorContext;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 
-import net.krmo.flink.source.SimpleSerializer;
 import net.krmo.flink.source.periodic.reader.PeriodicReader;
 
 public class PeriodicSource<OUT extends Serializable> implements Source<OUT, PeriodicSplit, PeriodicEnumeratorState> {
@@ -65,12 +64,12 @@ public class PeriodicSource<OUT extends Serializable> implements Source<OUT, Per
 
     @Override
     public SimpleVersionedSerializer<PeriodicSplit> getSplitSerializer() {
-        return new SimpleSerializer<>();
+        return PeriodicSplitSerializer.INSTANCE;
     }
 
     @Override
     public SimpleVersionedSerializer<PeriodicEnumeratorState> getEnumeratorCheckpointSerializer() {
-        return new SimpleSerializer<>();
+        return PeriodicEnumeratorStateSerializer.INSTANCE;
     }
 
 }

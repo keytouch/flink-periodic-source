@@ -47,7 +47,7 @@ public class PeriodicEnumerator<OUT extends Serializable>
         try {
             supplier.open();
         } catch (Exception e) {
-            throw new RuntimeException("Error while intializing SourceSupplier", e);
+            throw new RuntimeException("Error while initializing SourceSupplier", e);
         }
     }
 

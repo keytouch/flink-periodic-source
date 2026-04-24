@@ -11,7 +11,6 @@ import java.util.Map;
 import org.apache.flink.api.connector.source.SplitEnumerator;
 import org.apache.flink.api.connector.source.SplitEnumeratorContext;
 import org.apache.flink.api.connector.source.SplitsAssignment;
-import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +34,8 @@ public class PeriodicEnumerator<OUT extends Serializable>
             SourceSupplier<OUT> supplier,
             long initialDelayMillis,
             long discoverPeriodMillis) {
-        this.context = Preconditions.checkNotNull(context);
-        this.state = Preconditions.checkNotNull(state);
+        this.context = context;
+        this.state = state;
         this.supplier = supplier;
         this.initialDelayMillis = initialDelayMillis;
         this.discoverPeriodMillis = discoverPeriodMillis;

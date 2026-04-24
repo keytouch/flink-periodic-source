@@ -9,6 +9,7 @@ import org.apache.flink.api.connector.source.SourceReaderContext;
 import org.apache.flink.api.connector.source.SplitEnumerator;
 import org.apache.flink.api.connector.source.SplitEnumeratorContext;
 import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.flink.util.Preconditions;
 
 import net.krmo.flink.source.periodic.reader.PeriodicReader;
 
@@ -22,7 +23,7 @@ public class PeriodicSource<OUT extends Serializable> implements Source<OUT, Per
             SourceSupplier<OUT> supplier,
             long initialDelayMillis,
             long discoverPeriodMillis) {
-        this.supplier = supplier;
+        this.supplier = Preconditions.checkNotNull(supplier, "supplier is not provided");
         this.initialDelayMillis = initialDelayMillis;
         this.discoverPeriodMillis = discoverPeriodMillis;
     }

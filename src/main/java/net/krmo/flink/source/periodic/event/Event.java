@@ -42,9 +42,10 @@ public class Event<T> implements Delayed, Serializable {
             time += periodMillis - (time - delayMillis) % periodMillis;
         } else {
             if (time == 0) {
-                time = System.currentTimeMillis();
+                time = System.currentTimeMillis() + delayMillis;
+            } else {
+                time += periodMillis;
             }
-            time += periodMillis;
         }
     }
 

@@ -20,6 +20,8 @@ A Flink Connector (Source ONLY, Data Source API) with periodic events emitting.
     ```java
     new SourceSupplierOutput<>(String id, OUT value, PeriodicConfig config);
     ```
+    **NOTE:** **DO NOT** try to schedule tons of events, event flow should be redesigned properly in this case
+
     `PeriodicConfig`:
     ```java
     new PeriodicConfig(boolean useWallTime, long initialDelay, long period, TimeUnit unit);
@@ -30,6 +32,9 @@ A Flink Connector (Source ONLY, Data Source API) with periodic events emitting.
     - `unit` is the unit of initialDelay and period
 
 3. `SourceSupplier` is invoked every `discoverPeriodMillis` ms, with an initial delay of `initialDelayMillis` ms after all subtasks are online.
+
+   - `SourceSupplier` runs on jobmanager.
+   - `discoverPeriodMillis` should not be too small. Too frequent assigning may interrupt the scheduling.
 
 4. Events returned by `SourceSupplier` will be assigned to subtasks in a round-robin fashion.
 
@@ -53,7 +58,7 @@ env.fromSource(new PeriodicSource<>(
             a.add(new SourceSupplierOutput<>("3", "15s CCC",
                     new PeriodicConfig(true, 0, 15, TimeUnit.SECONDS)));
             return a;
-        }, 0, 5),
+        }, 0, 60000),
         WatermarkStrategy.noWatermarks(),
         "Periodic-Source",
         TypeInformation.of(String.class))

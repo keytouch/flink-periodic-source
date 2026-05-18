@@ -62,7 +62,16 @@ public class Event<T> implements Delayed, Serializable {
     public int compareTo(Delayed o) {
         if (o == this) // compare zero if same object
             return 0;
-        long diff = getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS);
+        Event<?> other = (Event<?>) o;
+
+        long diff = time - other.time;
+        if (diff < 0)
+            return -1;
+        if (diff > 0)
+            return 1;
+        // shorter period goes first
+        diff = periodicConfig.unit.toMillis(periodicConfig.period)
+                - other.periodicConfig.unit.toMillis(other.periodicConfig.period);
         return (diff < 0) ? -1 : (diff > 0) ? 1 : 0;
     }
 
